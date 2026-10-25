@@ -1,0 +1,46 @@
+{
+  "skills": {
+    "walk": "Ходьба",
+    "posture": "Наклоны и высота",
+    "claw_walk": "Ходьба с клешнёй",
+    "jump": "Прыжок по образцу",
+    "ref_free_jump": "Прыжок без образца",
+    "dance_crab": "Танец краба",
+    "dance_brazilian": "Бразильский танец",
+    "dance_dream_wings": "Танец «Крылья»",
+    "dance_maze": "Танец «Лабиринт»",
+    "dance_waist": "Танец талией",
+    "gesture_hello": "Привет",
+    "gesture_bow": "Поклон",
+    "gesture_paw": "Дай лапу",
+    "gesture_salute": "Салют"
+  },
+  "scenes": {
+    "studio": "Студия",
+    "daylight": "День",
+    "beach": "Пляж",
+    "football": "Футбольное поле",
+    "swing": "Качели",
+    "ice": "Лёд",
+    "rubber": "Резиновый коврик",
+    "map-home": "Дом",
+    "map-bedroom": "Спальня",
+    "map-pingpong": "Пинг-понг",
+    "map-soccer": "Мини-футбол",
+    "map-plaza": "Площадь",
+    "map-litter": "Мусор на полу",
+    "map-warehouse": "Склад",
+    "map-park-pump-track": "Памп-трек"
+  },
+  "angles": {
+    "front": "Спереди",
+    "three_quarter": "Три четверти",
+    "side": "Сбоку",
+    "behind": "Сзади",
+    "low_hero": "Низко и близко",
+    "top_down": "Сверху",
+    "wide": "Общий план",
+    "vertical_9x16": "Вертикаль 9:16",
+    "walk_follow_low": "Камера едет за роботом"
+  }
+}

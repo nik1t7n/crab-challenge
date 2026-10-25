@@ -1,0 +1,822 @@
+[
+  {
+    "group": "skills",
+    "name": "walk",
+    "task": "jumper.posture",
+    "scene": "studio",
+    "seconds_wall": 6.8,
+    "ok": true,
+    "file": "renders/skills/walk.npz",
+    "mb": 0.02
+  },
+  {
+    "group": "skills",
+    "name": "posture",
+    "task": "jumper.posture",
+    "scene": "studio",
+    "seconds_wall": 14.7,
+    "ok": true,
+    "file": "renders/skills/posture.npz",
+    "mb": 0.03
+  },
+  {
+    "group": "skills",
+    "name": "claw_walk",
+    "task": "jumper.five_foot",
+    "scene": "studio",
+    "seconds_wall": 9.7,
+    "ok": true,
+    "file": "renders/skills/claw_walk.npz",
+    "mb": 0.02
+  },
+  {
+    "group": "skills",
+    "name": "jump",
+    "task": "jumper.jump",
+    "scene": "studio",
+    "seconds_wall": 8.9,
+    "ok": true,
+    "file": "renders/skills/jump.npz",
+    "mb": 0.01
+  },
+  {
+    "group": "skills",
+    "name": "ref_free_jump",
+    "task": "jumper.ref_free_jump",
+    "scene": "studio",
+    "seconds_wall": 10.0,
+    "ok": true,
+    "file": "renders/skills/ref_free_jump.npz",
+    "mb": 0.01
+  },
+  {
+    "group": "skills",
+    "name": "dance_crab",
+    "task": "jumper.dance",
+    "scene": "studio",
+    "seconds_wall": 128.4,
+    "ok": true,
+    "file": "renders/skills/dance_crab.npz",
+    "mb": 0.74
+  },
+  {
+    "group": "skills",
+    "name": "dance_brazilian",
+    "task": "jumper.dance_brazilian",
+    "scene": "studio",
+    "seconds_wall": 49.1,
+    "ok": true,
+    "file": "renders/skills/dance_brazilian.npz",
+    "mb": 0.22
+  },
+  {
+    "group": "skills",
+    "name": "dance_dream_wings",
+    "task": "jumper.dance_dream_wings",
+    "scene": "studio",
+    "seconds_wall": 35.6,
+    "ok": true,
+    "file": "renders/skills/dance_dream_wings.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "skills",
+    "name": "dance_maze",
+    "task": "jumper.dance_maze",
+    "scene": "studio",
+    "seconds_wall": 22.1,
+    "ok": true,
+    "file": "renders/skills/dance_maze.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "skills",
+    "name": "dance_waist",
+    "task": "jumper.dance_waist",
+    "scene": "studio",
+    "seconds_wall": 27.1,
+    "ok": true,
+    "file": "renders/skills/dance_waist.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "skills",
+    "name": "gesture_hello",
+    "task": "jumper.gesture_hello",
+    "scene": "studio",
+    "seconds_wall": 11.3,
+    "ok": true,
+    "file": "renders/skills/gesture_hello.npz",
+    "mb": 0.03
+  },
+  {
+    "group": "skills",
+    "name": "gesture_bow",
+    "task": "jumper.gesture_bow",
+    "scene": "studio",
+    "seconds_wall": 11.6,
+    "ok": true,
+    "file": "renders/skills/gesture_bow.npz",
+    "mb": 0.03
+  },
+  {
+    "group": "skills",
+    "name": "gesture_paw",
+    "task": "jumper.gesture_paw",
+    "scene": "studio",
+    "seconds_wall": 11.7,
+    "ok": true,
+    "file": "renders/skills/gesture_paw.npz",
+    "mb": 0.02
+  },
+  {
+    "group": "skills",
+    "name": "gesture_salute",
+    "task": "jumper.gesture_salute",
+    "scene": "studio",
+    "seconds_wall": 10.1,
+    "ok": true,
+    "file": "renders/skills/gesture_salute.npz",
+    "mb": 0.02
+  },
+  {
+    "group": "scenes",
+    "name": "studio",
+    "task": "jumper.posture",
+    "scene": "studio",
+    "seconds_wall": 16.2,
+    "ok": true,
+    "file": "renders/scenes/studio.npz",
+    "mb": 0.03
+  },
+  {
+    "group": "scenes",
+    "name": "daylight",
+    "task": "jumper.posture",
+    "scene": "daylight",
+    "seconds_wall": 16.2,
+    "ok": true,
+    "file": "renders/scenes/daylight.npz",
+    "mb": 0.03
+  },
+  {
+    "group": "scenes",
+    "name": "beach",
+    "task": "jumper.posture",
+    "scene": "beach",
+    "seconds_wall": 16.5,
+    "ok": true,
+    "file": "renders/scenes/beach.npz",
+    "mb": 0.03
+  },
+  {
+    "group": "scenes",
+    "name": "football",
+    "task": "jumper.posture",
+    "scene": "football",
+    "seconds_wall": 18.0,
+    "ok": true,
+    "file": "renders/scenes/football.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "scenes",
+    "name": "swing",
+    "task": "jumper.posture",
+    "scene": "swing",
+    "seconds_wall": 16.6,
+    "ok": true,
+    "file": "renders/scenes/swing.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "scenes",
+    "name": "ice",
+    "task": "jumper.posture",
+    "scene": "ice",
+    "seconds_wall": 16.5,
+    "ok": true,
+    "file": "renders/scenes/ice.npz",
+    "mb": 0.03
+  },
+  {
+    "group": "scenes",
+    "name": "rubber",
+    "task": "jumper.posture",
+    "scene": "rubber",
+    "seconds_wall": 16.6,
+    "ok": true,
+    "file": "renders/scenes/rubber.npz",
+    "mb": 0.03
+  },
+  {
+    "group": "scenes",
+    "name": "map-home",
+    "task": "jumper.posture",
+    "scene": "upstream/jumper-design/library/maps/home.map",
+    "seconds_wall": 15.0,
+    "ok": true,
+    "file": "renders/scenes/map-home.npz",
+    "mb": 0.05
+  },
+  {
+    "group": "scenes",
+    "name": "map-bedroom",
+    "task": "jumper.posture",
+    "scene": "upstream/jumper-design/library/maps/bedroom.map",
+    "seconds_wall": 16.2,
+    "ok": true,
+    "file": "renders/scenes/map-bedroom.npz",
+    "mb": 0.09
+  },
+  {
+    "group": "scenes",
+    "name": "map-pingpong",
+    "task": "jumper.posture",
+    "scene": "upstream/jumper-design/library/maps/pingpong.map",
+    "seconds_wall": 14.3,
+    "ok": true,
+    "file": "renders/scenes/map-pingpong.npz",
+    "mb": 0.07
+  },
+  {
+    "group": "scenes",
+    "name": "map-soccer",
+    "task": "jumper.posture",
+    "scene": "upstream/jumper-design/library/maps/soccer.map",
+    "seconds_wall": 15.2,
+    "ok": true,
+    "file": "renders/scenes/map-soccer.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "scenes",
+    "name": "map-plaza",
+    "task": "jumper.posture",
+    "scene": "upstream/jumper-design/library/maps/plaza.map",
+    "seconds_wall": 13.9,
+    "ok": true,
+    "file": "renders/scenes/map-plaza.npz",
+    "mb": 0.03
+  },
+  {
+    "group": "scenes",
+    "name": "map-litter",
+    "task": "jumper.posture",
+    "scene": "upstream/jumper-design/library/maps/litter.map",
+    "seconds_wall": 12.8,
+    "ok": true,
+    "file": "renders/scenes/map-litter.npz",
+    "mb": 0.06
+  },
+  {
+    "group": "scenes",
+    "name": "map-warehouse",
+    "task": "jumper.posture",
+    "scene": "upstream/jumper-design/library/maps/warehouse.map",
+    "seconds_wall": 12.6,
+    "ok": true,
+    "file": "renders/scenes/map-warehouse.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "scenes",
+    "name": "map-park-pump-track",
+    "task": "jumper.posture",
+    "scene": "upstream/jumper-design/library/maps/park-pump-track.map",
+    "seconds_wall": 16.4,
+    "ok": true,
+    "file": "renders/scenes/map-park-pump-track.npz",
+    "mb": 0.03
+  },
+  {
+    "group": "angles",
+    "name": "front",
+    "task": "jumper.dance_brazilian",
+    "scene": "daylight",
+    "seconds_wall": 13.0,
+    "ok": true,
+    "file": "renders/angles/front.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "angles",
+    "name": "three_quarter",
+    "task": "jumper.dance_brazilian",
+    "scene": "daylight",
+    "seconds_wall": 12.7,
+    "ok": true,
+    "file": "renders/angles/three_quarter.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "angles",
+    "name": "side",
+    "task": "jumper.dance_brazilian",
+    "scene": "daylight",
+    "seconds_wall": 12.7,
+    "ok": true,
+    "file": "renders/angles/side.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "angles",
+    "name": "behind",
+    "task": "jumper.dance_brazilian",
+    "scene": "daylight",
+    "seconds_wall": 12.3,
+    "ok": true,
+    "file": "renders/angles/behind.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "angles",
+    "name": "low_hero",
+    "task": "jumper.dance_brazilian",
+    "scene": "daylight",
+    "seconds_wall": 12.6,
+    "ok": true,
+    "file": "renders/angles/low_hero.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "angles",
+    "name": "top_down",
+    "task": "jumper.dance_brazilian",
+    "scene": "daylight",
+    "seconds_wall": 13.0,
+    "ok": true,
+    "file": "renders/angles/top_down.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "angles",
+    "name": "wide",
+    "task": "jumper.dance_brazilian",
+    "scene": "daylight",
+    "seconds_wall": 12.5,
+    "ok": true,
+    "file": "renders/angles/wide.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "angles",
+    "name": "vertical_9x16",
+    "task": "jumper.dance_brazilian",
+    "scene": "daylight",
+    "seconds_wall": 11.6,
+    "ok": true,
+    "file": "renders/angles/vertical_9x16.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "angles",
+    "name": "walk_follow_low",
+    "task": "jumper.posture",
+    "scene": "daylight",
+    "seconds_wall": 8.8,
+    "ok": true,
+    "file": "renders/angles/walk_follow_low.npz",
+    "mb": 0.02
+  },
+  {
+    "group": "film",
+    "name": "sneak",
+    "task": "jumper.posture",
+    "scene": "plain",
+    "seconds_wall": 11.6,
+    "ok": true,
+    "file": "renders/film/sneak.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "film",
+    "name": "jump",
+    "task": "jumper.ref_free_jump",
+    "scene": "plain",
+    "seconds_wall": 5.7,
+    "ok": true,
+    "file": "renders/film/jump.npz",
+    "mb": 0.01
+  },
+  {
+    "group": "film",
+    "name": "approach",
+    "task": "jumper.five_foot",
+    "scene": "plain",
+    "seconds_wall": 4.8,
+    "ok": true,
+    "file": "renders/film/approach.npz",
+    "mb": 0.03
+  },
+  {
+    "group": "film",
+    "name": "escape",
+    "task": "jumper.five_foot",
+    "scene": "plain",
+    "seconds_wall": 5.8,
+    "ok": true,
+    "file": "renders/film/escape.npz",
+    "mb": 0.04
+  },
+  {
+    "group": "film",
+    "name": "course",
+    "task": "jumper.posture",
+    "scene": "vault",
+    "seconds_wall": 19.3,
+    "ok": true,
+    "file": "renders/film/course.npz",
+    "mb": 0.1
+  },
+  {
+    "group": "film",
+    "name": "heist_grab",
+    "task": "jumper.five_foot",
+    "scene": "plain",
+    "seconds_wall": 15.0,
+    "ok": true,
+    "file": "renders/film/heist_grab.npz",
+    "mb": 0.08
+  },
+  {
+    "group": "film",
+    "name": "push",
+    "task": "jumper.posture",
+    "scene": "gold",
+    "seconds_wall": 19.8,
+    "ok": true,
+    "file": "renders/film/push.npz",
+    "mb": 0.11
+  },
+  {
+    "group": "crew",
+    "name": "crab0",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 40.8,
+    "ok": true,
+    "file": "renders/crew/crab0.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab1",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 40.9,
+    "ok": true,
+    "file": "renders/crew/crab1.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab2",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 41.3,
+    "ok": true,
+    "file": "renders/crew/crab2.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab3",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 40.7,
+    "ok": true,
+    "file": "renders/crew/crab3.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab4",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 41.3,
+    "ok": true,
+    "file": "renders/crew/crab4.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab5",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 41.4,
+    "ok": true,
+    "file": "renders/crew/crab5.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab0_0",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 41.4,
+    "ok": true,
+    "file": "renders/crew/crab0_0.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab0_1",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 41.3,
+    "ok": true,
+    "file": "renders/crew/crab0_1.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab0_2",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.0,
+    "ok": true,
+    "file": "renders/crew/crab0_2.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab1_0",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 45.4,
+    "ok": true,
+    "file": "renders/crew/crab1_0.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab1_1",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 45.1,
+    "ok": true,
+    "file": "renders/crew/crab1_1.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab1_2",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 45.3,
+    "ok": true,
+    "file": "renders/crew/crab1_2.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab2_0",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 44.9,
+    "ok": true,
+    "file": "renders/crew/crab2_0.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab2_1",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 46.0,
+    "ok": true,
+    "file": "renders/crew/crab2_1.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab2_2",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 45.1,
+    "ok": true,
+    "file": "renders/crew/crab2_2.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab3_0",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 41.3,
+    "ok": true,
+    "file": "renders/crew/crab3_0.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab3_1",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 45.4,
+    "ok": true,
+    "file": "renders/crew/crab3_1.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab3_2",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 41.3,
+    "ok": true,
+    "file": "renders/crew/crab3_2.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab4_0",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 45.2,
+    "ok": true,
+    "file": "renders/crew/crab4_0.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab4_1",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 45.5,
+    "ok": true,
+    "file": "renders/crew/crab4_1.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab4_2",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 45.8,
+    "ok": true,
+    "file": "renders/crew/crab4_2.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab5_0",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 40.9,
+    "ok": true,
+    "file": "renders/crew/crab5_0.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab5_1",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 41.0,
+    "ok": true,
+    "file": "renders/crew/crab5_1.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab5_2",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.3,
+    "ok": true,
+    "file": "renders/crew/crab5_2.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab6_0",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 18.5,
+    "ok": true,
+    "file": "renders/crew/crab6_0.npz",
+    "mb": 0.08
+  },
+  {
+    "group": "crew",
+    "name": "crab6_1",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 18.5,
+    "ok": true,
+    "file": "renders/crew/crab6_1.npz",
+    "mb": 0.08
+  },
+  {
+    "group": "crew",
+    "name": "crab6_2",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 18.5,
+    "ok": true,
+    "file": "renders/crew/crab6_2.npz",
+    "mb": 0.08
+  },
+  {
+    "group": "crew",
+    "name": "crab0_3",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.7,
+    "ok": true,
+    "file": "renders/crew/crab0_3.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab0_4",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.1,
+    "ok": true,
+    "file": "renders/crew/crab0_4.npz",
+    "mb": 0.17
+  },
+  {
+    "group": "crew",
+    "name": "crab0_5",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.3,
+    "ok": true,
+    "file": "renders/crew/crab0_5.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab1_3",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.4,
+    "ok": true,
+    "file": "renders/crew/crab1_3.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab2_3",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.2,
+    "ok": true,
+    "file": "renders/crew/crab2_3.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab3_3",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.7,
+    "ok": true,
+    "file": "renders/crew/crab3_3.npz",
+    "mb": 0.19
+  },
+  {
+    "group": "crew",
+    "name": "crab4_3",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.7,
+    "ok": true,
+    "file": "renders/crew/crab4_3.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab5_3",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.5,
+    "ok": true,
+    "file": "renders/crew/crab5_3.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab5_4",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.8,
+    "ok": true,
+    "file": "renders/crew/crab5_4.npz",
+    "mb": 0.18
+  },
+  {
+    "group": "crew",
+    "name": "crab5_5",
+    "task": "jumper.posture",
+    "scene": "bedroom",
+    "seconds_wall": 42.1,
+    "ok": true,
+    "file": "renders/crew/crab5_5.npz",
+    "mb": 0.18
+  }
+]

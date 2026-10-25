@@ -1,0 +1,16 @@
+Crab Challenge films
+Copyright 2026 Nikita Nosov
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Built on KingKongRobotics/jumper and KingKongRobotics/jumper-design (Apache License 2.0,
+https://github.com/KingKongRobotics/jumper), whose trained policies and robot model drive
+every motion in the films. Physics: MuJoCo (Apache 2.0). Rendering: Blender (GPL; used as
+a tool, no Blender code is included). Edit: Remotion (see its licence). Sound effects
+rendered with earshot (MIT, https://github.com/Leonxlnx/earshot).
+
+Music is not included in this repository:
+  "MISSION: CLAWSSIBLE" uses "The Mountain - Epic" (Pixabay, track 508009, Pixabay licence).
+  "ROOM: CLEAN*" uses "Cartoon Bouncy Chase Antics" by Alex Morgan
+  (https://pixabay.com/music/cartoons-cartoon-bouncy-chase-antics-578472/, Pixabay licence).
+Download them from Pixabay into audio/ to rebuild the edits.
