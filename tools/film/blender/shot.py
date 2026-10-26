@@ -748,9 +748,11 @@ if NIGHT:
     # off; a cool pool of light on the cookies, as if the moon picked them out.
     sun = light("sun", "SUN", (wcx, D + 2.5, 3.2), 2.2, (0.55, 0.68, 1.0), size=0.6)
     aim(sun, (2.6, 1.0, 0.0))
-    win = light("window", "AREA", (wcx, D - 0.05, wcz), 12.0, (0.55, 0.68, 1.0), size=1.2)
+    win = light("window", "AREA", (wcx, D - 0.05, wcz), 35.0, (0.55, 0.68, 1.0), size=1.2)
     aim(win, (2.6, 0.8, 0.1))
-    fill = light("fill", "AREA", (W / 2, -0.5, 1.2), 6.0, (0.40, 0.50, 0.90), size=3.0)
+    # the readable night: a broad cool fill from the front, low enough to reach under the bed
+    # (the first cut at 6 W left the lair, the sneak and the hiding place black)
+    fill = light("fill", "AREA", (W / 2, -0.4, 0.5), 22.0, (0.42, 0.52, 0.95), size=3.5)
     aim(fill, (W / 2, 1.6, 0.2))
     ck = R["stealth"]["COOKIE_AT"]
     pool = light("cookie_pool", "SPOT", (ck[0] + 0.2, ck[1] + 0.3, 1.6), 30.0, (0.70, 0.80, 1.0), spot=(0.35, 0.6))
@@ -760,7 +762,7 @@ if NIGHT:
     SKY.node_tree.nodes["Principled BSDF"].inputs["Emission Color"].default_value = lin((0.12, 0.17, 0.32))
     SKY.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.6
     SHADE.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.0
-    scene.view_settings.exposure = 0.9
+    scene.view_settings.exposure = 2.0
 elif DAWN:
     # Sunrise: the sun just over the sill, deep orange, raking the floor and the stair;
     # the rest of the room still blue; the lamp left on from the night.
