@@ -30,7 +30,7 @@ import bedroom_shots as S
 import foley as F
 from stage import Take
 
-FILMS = {"bedroom": "bedroom_shots", "rocky": "rocky_shots"}
+FILMS = {"bedroom": "bedroom_shots", "rocky": "rocky_shots", "stealth": "stealth_shots"}
 OUT = F.OUT / "bedroom"
 STEP = F.STEP
 SR = F.SR

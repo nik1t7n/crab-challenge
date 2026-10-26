@@ -33,7 +33,7 @@ import importlib
 from stage import FACES, RENDERS, Take, blink_at, eye_geoms, ramp
 
 #: Film -> its shot list module; each module has SHOTS and props(take).
-FILMS = {"bedroom": "bedroom_shots", "rocky": "rocky_shots"}
+FILMS = {"bedroom": "bedroom_shots", "rocky": "rocky_shots", "stealth": "stealth_shots"}
 OUT = RENDERS / "bedroom_blend" / "bake"  # set per film in main()
 FPS = 30.0
 #: The model's colours, sorted into the film's materials (stage.paint_crab's rule).
@@ -166,6 +166,10 @@ def room(film: str) -> None:
         data["rocky"] = {"TIERS": R.TIERS, "RAMPS": R.RAMPS, "STAIR_Y": R.STAIR_Y, "HALF_W": R.HALF_W,
                          "FLAG_AT": RS.FLAG_AT, "WEIGHT_AT": R.WEIGHT_AT, "WEIGHT_HALF": R.WEIGHT_HALF,
                          "BOOK_TONES": RS.BOOK_TONES}
+    if film == "stealth":
+        import stealth_scene as T
+
+        data["stealth"] = {"COVER": T.COVER, "COOKIE_AT": T.COOKIE_AT}
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "room.json").write_text(json.dumps(data))
 

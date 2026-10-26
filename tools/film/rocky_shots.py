@@ -134,8 +134,9 @@ SHOTS: list[Shot] = [
          eyes=faces((0.0, "focus"), (1.6, "panic"), (2.8, "focus")), fovy=45),
     # Backs off, turns away, deflated.
     shot("defeat", "rocky_fail", TimeMap([(3.0, 5.5, 9.8)]),
-         CameraPath([BS.pov(0.0, (2.62, -0.05, 0.14), (3.25, 0.50, 0.06)),
-                     BS.pov(3.0, (2.70, 0.00, 0.12), (3.25, 0.45, 0.06))]),
+         # (inside the room: at y < 0 the camera sat inside the front wall and saw black)
+         CameraPath([BS.pov(0.0, (2.62, 0.06, 0.14), (3.25, 0.55, 0.06)),
+                     BS.pov(3.0, (2.70, 0.08, 0.12), (3.25, 0.50, 0.06))]),
          eyes=faces((0.0, "guilty")), fovy=45),
     # The montage.
     shot("squats", "rocky_squats", TimeMap([(2.8, 1.2, 6.8)]),

@@ -84,7 +84,7 @@ SHOTS: list[Shot] = [
          eyes=faces((0.0, "focus")), fovy=42),
     # Frozen behind the books as the vacuum goes by beyond them.
     shot("hide", TimeMap([(3.2, 5.6, 9.2)]),
-         CameraPath([pov(0.0, (1.70, 2.05, 0.12), (2.05, 0.60, 0.05)), pov(3.2, (1.74, 2.00, 0.12), (2.15, 0.60, 0.05))]),
+         CameraPath([pov(0.0, (1.20, 1.85, 0.08), (2.35, 0.85, 0.06)), pov(3.2, (1.26, 1.82, 0.08), (2.45, 0.80, 0.06))]),
          eyes=faces((0.0, "focus"), (0.6, "panic"), (2.6, "open")), fovy=46),
     # From above: round the books and down toward the cookies, the vacuum far off.
     shot("slip", TimeMap([(2.6, 9.2, 18.0)]),

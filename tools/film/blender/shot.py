@@ -41,6 +41,7 @@ H = R["WALL_H"]
 _CLOTH_FILE = ROOT / "renders" / "bedroom_blend" / "bake" / "cloth.npz"  # shared by every film
 CLOTH = np.load(_CLOTH_FILE) if _CLOTH_FILE.exists() else None
 DAWN = R.get("film") == "rocky"  # UNDERCLAW is shot at sunrise
+NIGHT = R.get("film") == "stealth"  # OPERATION: COOKIE at 2 a.m.
 
 
 def lin(c):
@@ -620,6 +621,99 @@ if DAWN:
         book("dictionary", (wx, wy, RK["WEIGHT_HALF"][2]), RK["WEIGHT_HALF"], (0.55, 0.12, 0.12))
 
 
+if NIGHT:
+    (cx_, cy_), (chx, chy, chz) = R["stealth"]["COVER"]
+    for i, tone in enumerate(((0.20, 0.30, 0.50), (0.55, 0.18, 0.15), (0.80, 0.66, 0.35))):
+        book(f"cover{i}", (cx_ + 0.01 * (i - 1), cy_, (2 * i + 1) * chz / 3), (chx - 0.008 * i, chy, chz / 3 - 0.0008),
+             tone, yaw=math.radians(4 * (i - 1)))
+
+VAC_BODY = plastic("vacuum", (0.10, 0.10, 0.11), rough=0.18, coat=0.8)
+VAC_BUMPER = plastic("bumper", (0.62, 0.64, 0.68), rough=0.25, coat=0.3)
+VAC_BUMPER.node_tree.nodes["Principled BSDF"].inputs["Metallic"].default_value = 0.8
+VAC_LED = emission("led", (0.25, 0.75, 1.0), 12.0)
+COOKIE = None
+
+
+def cookie_mat():
+    """Golden-brown dough with chocolate chips: dark where a coarse noise is high."""
+    m, nt, bsdf = _nodes("cookie")
+    v = _coord(nt)
+    chips = nt.nodes.new("ShaderNodeTexVoronoi")
+    chips.inputs["Scale"].default_value = 90.0
+    nt.links.new(v, chips.inputs["Vector"])
+    crumb = nt.nodes.new("ShaderNodeTexNoise")
+    crumb.inputs["Scale"].default_value = 260.0
+    crumb.inputs["Detail"].default_value = 8.0
+    nt.links.new(v, crumb.inputs["Vector"])
+    dough = _ramp(nt, crumb.outputs["Fac"], [(0.35, (0.62, 0.40, 0.20)), (0.65, (0.82, 0.60, 0.32))])
+    mask = _ramp(nt, chips.outputs["Distance"], [(0.0, (1, 1, 1)), (0.18, (1, 1, 1)), (0.22, (0, 0, 0)), (1.0, (0, 0, 0))])
+    mix = nt.nodes.new("ShaderNodeMix")
+    mix.data_type = "RGBA"
+    nt.links.new(mask, mix.inputs["Factor"])
+    nt.links.new(dough, mix.inputs[6])
+    mix.inputs[7].default_value = lin((0.16, 0.08, 0.04))
+    nt.links.new(mix.outputs[2], bsdf.inputs["Base Color"])
+    _bump(nt, bsdf, crumb.outputs["Fac"], 0.6, 0.002)
+    _set(bsdf, rough=0.75, sheen=0.2)
+    return m
+
+
+def _child(parent, ob):
+    COLL.objects.unlink(ob)
+    ob.parent = parent
+    cast_books.append(ob)
+    return ob
+
+
+def vacuum_obj(name, half):
+    """A robot vacuum: a glossy black disc, a silver bumper round its lower half, a
+    lidar puck on top, a glowing ring; its origin on the floor at its centre."""
+    r, _, hh = half
+    root = bpy.data.objects.new(name, None)
+    _child(root, cylinder(f"{name}_bumper", (0, 0, 0.004 + hh * 0.7), r, hh * 0.7, VAC_BUMPER, bevel=0.008))
+    _child(root, cylinder(f"{name}_top", (0, 0, 0.004 + 1.55 * hh), r - 0.008, 0.45 * hh, VAC_BODY, bevel=0.012))
+    _child(root, cylinder(f"{name}_lidar", (0.06, 0, 0.004 + 2 * hh + 0.012), 0.04, 0.012, VAC_BODY, bevel=0.004))
+    cu = bpy.data.curves.new(f"{name}_ring", "CURVE")
+    cu.dimensions = "3D"
+    sp = cu.splines.new("NURBS")
+    pts = [(math.cos(a_) * (r - 0.03), math.sin(a_) * (r - 0.03), 0.0, 1.0)
+           for a_ in (2 * math.pi * k_ / 24 for k_ in range(24))]
+    sp.points.add(len(pts) - 1)
+    for pt, co in zip(sp.points, pts, strict=True):
+        pt.co = co
+    sp.use_cyclic_u = True
+    cu.bevel_depth, cu.bevel_resolution = 0.003, 3
+    ring_ob = bpy.data.objects.new(f"{name}_ring", cu)
+    COLL.objects.link(ring_ob)
+    cu.materials.append(VAC_LED)
+    ring_ob.location = (0, 0, 0.004 + 2 * hh + 0.001)
+    _child(root, ring_ob)
+    glow = bpy.data.lights.new(f"{name}_glow", "POINT")
+    glow.energy, glow.color, glow.shadow_soft_size = 3.0, (0.3, 0.75, 1.0), 0.1
+    glow_ob = bpy.data.objects.new(f"{name}_glow", glow)
+    glow_ob.location = (0, 0, 0.004 + 2 * hh + 0.03)
+    glow_ob.parent = root
+    cast_books.append(glow_ob)
+    return root
+
+
+def cookies_obj(name, half):
+    """Three cookies stacked, a little askew; origin at the stack's centre."""
+    global COOKIE
+    COOKIE = COOKIE or cookie_mat()
+    r, _, hh = half
+    root = bpy.data.objects.new(name, None)
+    n = 3
+    for i in range(n):
+        h = 2 * hh / n
+        c = cylinder(f"{name}_{i}", (0.004 * (i - 1), 0.003 * (1 - i), -hh + h * (i + 0.5)), r * (1 - 0.03 * i),
+                     h / 2 - 0.0006, COOKIE, bevel=0.0035)
+        c.rotation_euler = (0.03 * (i - 1), -0.02 * i, 0.7 * i)
+        bumpy(c, 0.0015, 0.01)
+        _child(root, c)
+    return root
+
+
 # ── lights ────────────────────────────────────────────────────────────────────
 
 
@@ -649,7 +743,25 @@ def aim(ob, target):
     ob.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
 
 
-if DAWN:
+if NIGHT:
+    # 2 a.m.: moonlight through the window, cold and low; a faint blue fill; the lamp
+    # off; a cool pool of light on the cookies, as if the moon picked them out.
+    sun = light("sun", "SUN", (wcx, D + 2.5, 3.2), 2.2, (0.55, 0.68, 1.0), size=0.6)
+    aim(sun, (2.6, 1.0, 0.0))
+    win = light("window", "AREA", (wcx, D - 0.05, wcz), 12.0, (0.55, 0.68, 1.0), size=1.2)
+    aim(win, (2.6, 0.8, 0.1))
+    fill = light("fill", "AREA", (W / 2, -0.5, 1.2), 6.0, (0.40, 0.50, 0.90), size=3.0)
+    aim(fill, (W / 2, 1.6, 0.2))
+    ck = R["stealth"]["COOKIE_AT"]
+    pool = light("cookie_pool", "SPOT", (ck[0] + 0.2, ck[1] + 0.3, 1.6), 30.0, (0.70, 0.80, 1.0), spot=(0.35, 0.6))
+    aim(pool, (ck[0], ck[1], 0.0))
+    world.node_tree.nodes["Background"].inputs[0].default_value = lin((0.10, 0.14, 0.28))
+    world.node_tree.nodes["Background"].inputs[1].default_value = 0.12
+    SKY.node_tree.nodes["Principled BSDF"].inputs["Emission Color"].default_value = lin((0.12, 0.17, 0.32))
+    SKY.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.6
+    SHADE.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.0
+    scene.view_settings.exposure = 0.9
+elif DAWN:
     # Sunrise: the sun just over the sill, deep orange, raking the floor and the stair;
     # the rest of the room still blue; the lamp left on from the night.
     # (through the window at 1.5 m and down onto the stair: 31 degrees up)
@@ -842,6 +954,10 @@ for o, info in enumerate(meta["objects"]):
         so = ob.modifiers.new("thick", "SOLIDIFY")
         so.thickness, so.offset = 0.004, -1
         soft(ob, 1)
+    elif kind == "vacuum":
+        ob = vacuum_obj(f"vacuum_{o}", info["half"])
+    elif kind == "cookies":
+        ob = cookies_obj(f"cookies_{o}", info["half"])
     elif kind == "book":
         ob = book(f"book_{o}", (0.0, 0.0, 0.0), info["half"], (0.55, 0.12, 0.12), link=False)
     elif kind == "sock":
