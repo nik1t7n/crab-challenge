@@ -143,6 +143,14 @@ def sock(p, R, half, rgba) -> list[Geom]:
     return out
 
 
+def props(take) -> list[dict]:
+    """The take's things for blend_bake: each sock and shirt, its kind, colour and box."""
+    k = _crab_index(take)
+    colour = B.SNEAK_OF if k == B.SNEAK else k
+    return [{"body": f"item{i}/item", "kind": kind, "colour": colour, "half": list(B.KINDS[kind][0]),
+             "seed": 7 * colour + i} for i, (kind, *_rest) in enumerate(B.items(k))]
+
+
 def clothes(take) -> list[Geom]:
     k = _crab_index(take)
     colour = B.SNEAK_OF if k == B.SNEAK else k

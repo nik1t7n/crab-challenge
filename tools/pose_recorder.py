@@ -151,9 +151,30 @@ def _feed_pose() -> None:
     def with_pose(env, script):
         data = env.scene["robot"].data
 
-        props = [name for name in os.environ.get("FEED_PROPS", "").split(",") if name]
+        # the props this take actually has (a scene's takes may differ: only the push
+        # in rocky_scene has the heavy book)
+        present = set(env.scene.entities) if hasattr(env.scene, "entities") else None
+        props = [name for name in os.environ.get("FEED_PROPS", "").split(",")
+                 if name and (present is None or name in present)]
+
+        # mocap props the scene drives by time (`MOCAP = {name: t -> (x, y, yaw)}` in the
+        # scene module): the stealth film's patrolling vacuum
+        path = os.environ.get("SCENE_MODULE")
+        module = sys.modules.get(f"scenes.{Path(path).stem.removesuffix('_scene')}") if path else None
+        mocap = {name: fn for name, fn in getattr(module, "MOCAP", {}).items()
+                 if present is None or name in present}
+
+        def drive(t):
+            import torch
+
+            for name, fn in mocap.items():
+                x, y, yaw = fn(t)
+                pose = torch.tensor([[x, y, 0.0, math.cos(yaw / 2), 0.0, 0.0, math.sin(yaw / 2)]],
+                                    dtype=torch.float32, device=env.device)
+                env.scene[name].write_mocap_pose_to_sim(pose)
 
         def fed(t):
+            drive(t)
             p = data.root_link_pose_w[0].detach().cpu().numpy()
             w, x, y, z = (float(v) for v in p[3:7])
             builtins._crab_pose = (float(p[0]), float(p[1]),

@@ -28,17 +28,19 @@ import bpy
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[3]
-BAKE = ROOT / "renders" / "bedroom_blend" / "bake"
-
 args = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["wide"]
 SHOT = args[0]
+FILM = args[args.index("--film") + 1] if "--film" in args else "bedroom"
+BAKE = ROOT / "renders" / f"{FILM}_blend" / "bake"
 STILL = int(args[args.index("--still") + 1]) if "--still" in args else None
 PREVIEW = "--preview" in args
 
 R = json.loads((BAKE / "room.json").read_text())
 W, D = R["ROOM"]
 H = R["WALL_H"]
-CLOTH = np.load(BAKE / "cloth.npz") if (BAKE / "cloth.npz").exists() else None
+_CLOTH_FILE = ROOT / "renders" / "bedroom_blend" / "bake" / "cloth.npz"  # shared by every film
+CLOTH = np.load(_CLOTH_FILE) if _CLOTH_FILE.exists() else None
+DAWN = R.get("film") == "rocky"  # UNDERCLAW is shot at sunrise
 
 
 def lin(c):
@@ -536,6 +538,88 @@ for n_, c_, h_ in (("jamb_a", (W + 0.01, dy0 - 0.03, door_h / 2), (0.07, 0.03, d
 hall_wall = box("hall_wall", (W + 1.6, R["DOOR"][1], H / 2), (0.02, 1.5, H / 2), HALL, bevel=0.0)
 
 
+# ── books (UNDERCLAW's stair, the heavy dictionary) ──────────────────────────
+
+
+def paper():
+    m, nt, bsdf = _nodes("pages")
+    w = nt.nodes.new("ShaderNodeTexWave")
+    w.bands_direction = "Z"
+    w.inputs["Scale"].default_value = 900.0
+    w.inputs["Distortion"].default_value = 0.3
+    nt.links.new(_coord(nt), w.inputs["Vector"])
+    col = _ramp(nt, w.outputs["Fac"], [(0.0, (0.82, 0.79, 0.70)), (0.6, (0.96, 0.94, 0.88))])
+    nt.links.new(col, bsdf.inputs["Base Color"])
+    _bump(nt, bsdf, w.outputs["Fac"], 0.2, 0.0005)
+    _set(bsdf, rough=0.8)
+    return m
+
+
+PAGES = paper()
+_covers: dict = {}
+
+
+def cover(tone):
+    key_ = tuple(round(v, 3) for v in tone[:3])
+    if key_ not in _covers:
+        m = fabric(f"cover{len(_covers)}", lin(tone), weave=380.0, sheen=0.2, rough=0.55)
+        m.node_tree.nodes["Principled BSDF"].inputs["Coat Weight"].default_value = 0.2
+        _covers[key_] = m
+    return _covers[key_]
+
+
+def book(name, center, half, tone, link=True, yaw=0.0):
+    """A hardcover: boards a little larger than the page block, the pages cream and
+    lined on three sides, the spine on -x."""
+    hx, hy, hz = half
+    boards = box(name, center, half, cover(tone), bevel=min(0.003, hz * 0.4), rot_z=yaw)
+    pages = box(f"{name}_pages", (0.004, 0.0, 0.0), (hx - 0.006, hy - 0.004, hz * 0.84), PAGES, bevel=0.0005)
+    pages.parent = boards
+    if not link:  # a cast object: animated, so out of the static set
+        for o_ in (boards, pages):
+            COLL.objects.unlink(o_)
+        cast_books.append(pages)
+    return boards
+
+
+cast_books: list = []
+if DAWN:
+    RK = R["rocky"]
+    sy, hw = RK["STAIR_Y"], RK["HALF_W"]
+    tones = RK["BOOK_TONES"]
+    k = 0
+    for x0, x1, h in RK["TIERS"]:
+        for i in range(round(h / 0.02)):
+            # each layer one or two books, a little askew, as stacked by hand
+            for part, (ya, yb) in enumerate(((sy - hw, sy + 0.02), (sy + 0.02, sy + hw))
+                                            if (k % 3) else ((sy - hw, sy + hw),)):
+                jit = 0.012 * math.sin(7.1 * k + part)
+                book(f"tier{k}_{part}", ((x0 + x1) / 2 + jit, (ya + yb) / 2, 0.01 + 0.02 * i),
+                     ((x1 - x0) / 2, (yb - ya) / 2, 0.0098), tones[(k + part) % len(tones)], yaw=1.2 * jit)
+            k += 1
+    for j, (x0, x1, z0, z1) in enumerate(RK["RAMPS"]):
+        run, rise = x1 - x0, z1 - z0
+        slope = math.atan2(rise, run)
+        ob = box(f"ramp{j}", ((x0 + x1) / 2 + 0.005 * math.sin(slope), sy, (z0 + z1) / 2 - 0.005 * math.cos(slope)),
+                 (math.hypot(run, rise) / 2, hw, 0.005), cover(tones[(j + 3) % len(tones)]), bevel=0.002)
+        ob.rotation_euler = (0, -slope, 0)  # +x end up
+        if z0 > 0:
+            book(f"ramp{j}_base", ((x0 + x1) / 2, sy, z0 / 2), (run / 2, hw, z0 / 2 - 0.0005),
+                 tones[(j + 1) % len(tones)])
+    # the flag: a cork, a pole, a little yellow pennant
+    fx, fy = RK["FLAG_AT"]
+    fz = RK["TIERS"][-1][2]
+    CORK = fabric("cork", lin((0.72, 0.55, 0.36)), weave=150.0, sheen=0.0, rough=0.9)
+    cylinder("cork", (fx, fy, fz + 0.015), 0.018, 0.015, CORK)
+    cylinder("pole", (fx, fy, fz + 0.17), 0.0035, 0.155, BRASS, bevel=0.0)
+    PENNANT = fabric("pennant", lin((0.98, 0.76, 0.16)), weave=400.0, sheen=0.3)
+    pen = box("pennant", (fx, fy - 0.065, fz + 0.28), (0.0015, 0.065, 0.042), PENNANT, bevel=0.0)
+    pen.modifiers.new("sub", "SUBSURF").levels = 2
+    if meta.get("weight_rest"):
+        wx, wy = RK["WEIGHT_AT"]
+        book("dictionary", (wx, wy, RK["WEIGHT_HALF"][2]), RK["WEIGHT_HALF"], (0.55, 0.12, 0.12))
+
+
 # ── lights ────────────────────────────────────────────────────────────────────
 
 
@@ -565,17 +649,36 @@ def aim(ob, target):
     ob.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
 
 
-# Low evening sun through the window, warm; it lays the window's shape on the floor.
-sun = light("sun", "SUN", (wcx, D + 3, 3), 7.0, (1.0, 0.76, 0.52), size=0.6)
-aim(sun, (wcx - 0.6, D - 1.6, 0.0))
-sun.data.angle = math.radians(1.5)
-# The sky's soft light from the window, a dim ceiling fill, a cool bounce from the front.
-win = light("window", "AREA", (wcx, D - 0.05, wcz), 60.0, (1.0, 0.86, 0.70), size=1.2)
-aim(win, (wcx, 0.0, 0.2))
-light("ceiling", "AREA", (W / 2, D / 2, H - 0.02), 35.0, (1.0, 0.93, 0.84), size=1.6)
-fill = light("fill", "AREA", (W / 2, -0.5, 1.4), 22.0, (0.75, 0.82, 1.0), size=2.5)
-aim(fill, (W / 2, 2.2, 0.2))
-light("lamp", "POINT", (lx, ly, c + 0.40), 25.0, (1.0, 0.78, 0.50), size=0.05)
+if DAWN:
+    # Sunrise: the sun just over the sill, deep orange, raking the floor and the stair;
+    # the rest of the room still blue; the lamp left on from the night.
+    # (through the window at 1.5 m and down onto the stair: 31 degrees up)
+    sun = light("sun", "SUN", (3.6, D + 2.5, 3.0), 8.0, (1.0, 0.55, 0.28), size=0.6)
+    aim(sun, (2.9, 1.1, 0.0))
+    sun.data.angle = math.radians(1.0)
+    win = light("window", "AREA", (wcx, D - 0.05, wcz), 45.0, (1.0, 0.62, 0.42), size=1.2)
+    aim(win, (2.8, 0.8, 0.1))
+    light("ceiling", "AREA", (W / 2, D / 2, H - 0.02), 22.0, (0.60, 0.68, 1.0), size=2.0)
+    fill = light("fill", "AREA", (W / 2, -0.5, 1.2), 30.0, (0.50, 0.62, 1.0), size=3.0)
+    aim(fill, (W / 2, 1.6, 0.2))
+    light("lamp", "POINT", (lx, ly, c + 0.40), 18.0, (1.0, 0.72, 0.44), size=0.05)
+    world.node_tree.nodes["Background"].inputs[0].default_value = lin((0.30, 0.38, 0.62))
+    world.node_tree.nodes["Background"].inputs[1].default_value = 0.18
+    SKY.node_tree.nodes["Principled BSDF"].inputs["Emission Color"].default_value = lin((1.0, 0.50, 0.30))
+    SKY.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 1.6
+    scene.view_settings.exposure = 0.6
+else:
+    # Low evening sun through the window, warm; it lays the window's shape on the floor.
+    sun = light("sun", "SUN", (wcx, D + 3, 3), 7.0, (1.0, 0.76, 0.52), size=0.6)
+    aim(sun, (wcx - 0.6, D - 1.6, 0.0))
+    sun.data.angle = math.radians(1.5)
+    # The sky's soft light from the window, a dim ceiling fill, a cool bounce from the front.
+    win = light("window", "AREA", (wcx, D - 0.05, wcz), 60.0, (1.0, 0.86, 0.70), size=1.2)
+    aim(win, (wcx, 0.0, 0.2))
+    light("ceiling", "AREA", (W / 2, D / 2, H - 0.02), 35.0, (1.0, 0.93, 0.84), size=1.6)
+    fill = light("fill", "AREA", (W / 2, -0.5, 1.4), 22.0, (0.75, 0.82, 1.0), size=2.5)
+    aim(fill, (W / 2, 2.2, 0.2))
+    light("lamp", "POINT", (lx, ly, c + 0.40), 25.0, (1.0, 0.78, 0.50), size=0.05)
 hall_light = light("hall", "AREA", (W + 1.2, R["DOOR"][1], 1.8), 0.0, (1.0, 0.86, 0.66), size=1.0)
 aim(hall_light, (W - 0.8, R["DOOR"][1] + 0.4, 0.0))
 
@@ -583,13 +686,13 @@ aim(hall_light, (W - 0.8, R["DOOR"][1] + 0.4, 0.0))
 # ── the cast ──────────────────────────────────────────────────────────────────
 
 meshes = np.load(BAKE / "meshes.npz")
-_mesh_cache: dict[int, bpy.types.Mesh] = {}
+_mesh_cache: dict[str, bpy.types.Mesh] = {}
 
 
-def robot_mesh(mid: int):
+def robot_mesh(mid: str):
     if mid in _mesh_cache:
         return _mesh_cache[mid]
-    v, f = meshes[f"v{mid}"], meshes[f"f{mid}"]
+    v, f = meshes[f"v:{mid}"], meshes[f"f:{mid}"]
     me = bpy.data.meshes.new(f"robot_{mid}")
     me.vertices.add(len(v))
     me.vertices.foreach_set("co", v.ravel())
@@ -739,6 +842,8 @@ for o, info in enumerate(meta["objects"]):
         so = ob.modifiers.new("thick", "SOLIDIFY")
         so.thickness, so.offset = 0.004, -1
         soft(ob, 1)
+    elif kind == "book":
+        ob = book(f"book_{o}", (0.0, 0.0, 0.0), info["half"], (0.55, 0.12, 0.12), link=False)
     elif kind == "sock":
         ob = bpy.data.objects.new(f"sock_{o}", sock_mesh(info["half"], info["seed"]))
         ob.data.materials.append(SOCK[info["colour"]])
@@ -753,6 +858,8 @@ for o, info in enumerate(meta["objects"]):
     ob.rotation_mode = "QUATERNION"
     key(ob, "location", pos[:, o])
     key(ob, "rotation_quaternion", quat[:, o])
+for ob in cast_books:  # a cast book's page block rides on its boards
+    cast.objects.link(ob)
 
 # the door and the hall's light
 door = bake["door"]
@@ -788,7 +895,7 @@ cd.dof.aperture_fstop = 2.8 if dist.mean() < 1.0 else 5.6 if dist.mean() < 2.0 e
 
 # ── render ────────────────────────────────────────────────────────────────────
 
-out = ROOT / "renders" / "bedroom_blend" / ("preview" if PREVIEW else "") / SHOT
+out = ROOT / "renders" / f"{FILM}_blend" / ("preview" if PREVIEW else "") / SHOT
 out.mkdir(parents=True, exist_ok=True)
 scene.render.image_settings.file_format = "PNG"
 scene.render.film_transparent = False

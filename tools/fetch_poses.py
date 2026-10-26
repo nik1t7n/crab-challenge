@@ -49,8 +49,11 @@ def main() -> int:
         if not mjb.exists() and base is not None:
             shutil.copyfile(base, mjb)
         t = time.monotonic()
-        subprocess.run(["rsync", "-a", "--no-whole-file",
-                        f"{args.host}:{args.remote}/renders/{key}.mjb", str(mjb)], check=True)
+        got = subprocess.run(["rsync", "-a", "--no-whole-file",
+                              f"{args.host}:{args.remote}/renders/{key}.mjb", str(mjb)], capture_output=True)
+        if got.returncode == 23:  # made here (a picked best take), not on the host
+            continue
+        got.check_returncode()
         seeded = "seeded" if base is not None else "full copy"
         print(f"[fetch] {key:<30} {seeded:<9} {time.monotonic() - t:5.1f} s", flush=True)
         bases.setdefault(scene, mjb)

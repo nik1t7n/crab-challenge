@@ -214,3 +214,161 @@ def tidy(t: float) -> dict:
     vx, vy = _body(pose, vwx, vwy)
     turn = max(-1.6, min(1.6, 2.5 * _wrap(heading - yaw)))
     return {"twist": (vx, max(-0.35, min(0.35, vy)), turn), "posture": _NEUTRAL}
+
+
+# ── UNDERCLAW, the training montage (jumper.posture in tools/film/rocky_scene.py) ──
+# Positions are the bedroom's; each script reads the crab's pose and steers it.
+
+_ROCKY: dict = {}
+
+
+def _rocky():
+    import importlib.util
+    from pathlib import Path
+
+    if "m" not in _ROCKY:
+        path = Path(__file__).with_name("film") / "rocky_scene.py"
+        spec = importlib.util.spec_from_file_location("_rocky_scene", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        _ROCKY["m"] = module
+    return _ROCKY["m"]
+
+
+def _pose():
+    import builtins
+
+    return getattr(builtins, "_crab_pose", None)
+
+
+def _steer(pose, vwx, vwy, heading, limit=0.35, turn_gain=2.0):
+    x, y, yaw = pose
+    vx = math.cos(yaw) * vwx + math.sin(yaw) * vwy
+    vy = -math.sin(yaw) * vwx + math.cos(yaw) * vwy
+    err = math.atan2(math.sin(heading - yaw), math.cos(heading - yaw))
+    return (vx, max(-limit, min(limit, vy)), max(-1.4, min(1.4, turn_gain * err)))
+
+
+def rocky_climb(t: float) -> dict:
+    """Day 30: up the three ramps to the summit (0.28 m/s commanded, about 0.15 made
+    good on the ramps), body along the
+    stair; on top it stops and turns to face the room (south)."""
+    pose = _pose()
+    if pose is None or t < 0.6:
+        return {"twist": (0.0, 0.0, 0.0), "posture": _NEUTRAL}
+    m = _rocky()
+    x, y, yaw = pose
+    tx, ty, _ = m.SUMMIT_TOP
+    path = [(m.CLIMB_START[0], m.STAIR_Y), (tx, ty)]
+    (gx, gy), along, total = _pursuit(pose, path, lookahead=0.20)
+    left = total - along
+    if left > 0.03 and "top" not in _ROCKY:
+        go = 0.28 * _ramp(t, 0.6, 1.4) * min(1.0, left / 0.15)
+        dx, dy = gx - x, gy - y
+        n = math.hypot(dx, dy) or 1.0
+        return {"twist": _steer(pose, go * dx / n, go * dy / n, 0.0), "posture": _NEUTRAL}
+    _ROCKY["top"] = True
+    hold = (1.2 * (tx - x), 1.2 * (ty - y))
+    return {"twist": _steer(pose, *hold, -math.pi / 2, turn_gain=1.6), "posture": _NEUTRAL}
+
+
+def rocky_fail(t: float) -> dict:
+    """Day 1: straight at the summit's 12 cm south face, keeps trying for 3 s, backs
+    off and turns away."""
+    pose = _pose()
+    if pose is None or t < 0.6:
+        return {"twist": (0.0, 0.0, 0.0), "posture": _NEUTRAL}
+    north = math.pi / 2
+    if t < 5.5:  # at the wall and against it
+        return {"twist": _steer(pose, 0.0, 0.28 * _ramp(t, 0.6, 1.2), north), "posture": _NEUTRAL}
+    if t < 7.0:  # back off
+        return {"twist": _steer(pose, 0.0, -0.18, north), "posture": _NEUTRAL}
+    # turn away, a little crouched: dejected
+    return {"twist": _steer(pose, 0.0, 0.0, -math.pi / 2, turn_gain=1.0),
+            "posture": (0.0, 0.0, 0.0, (0.07, 0.6 * _ramp(t, 7.0, 8.0)))}
+
+
+def rocky_squats(t: float) -> dict:
+    """Squats: full crouch (0.07 m) and up, one rep every 1.4 s, standing still."""
+    if t < 0.8:
+        return {"twist": (0.0, 0.0, 0.0), "posture": _NEUTRAL}
+    share = 0.5 - 0.5 * math.cos(2 * math.pi * (t - 0.8) / 1.4)
+    return {"twist": (0.0, 0.0, 0.0), "posture": (0.0, 0.0, 0.0, (0.07, share))}
+
+
+def rocky_shuffle(t: float) -> dict:
+    """Agility drill: sideways between two marks 0.6 m apart, facing the room, a
+    change of direction every 1.5 s."""
+    pose = _pose()
+    if pose is None or t < 0.6:
+        return {"twist": (0.0, 0.0, 0.0), "posture": _NEUTRAL}
+    m = _rocky()
+    x0, y0, _ = m.SHUFFLE_START
+    leg = int((t - 0.6) / 1.5)
+    tx = x0 + (0.6 if leg % 2 == 0 else 0.0)
+    x, y, _ = pose
+    vwx = max(-0.4, min(0.4, 2.5 * (tx - x)))
+    return {"twist": _steer(pose, vwx, 1.5 * (y0 - y), -math.pi / 2, limit=0.4), "posture": _NEUTRAL}
+
+
+def rocky_push(t: float) -> dict:
+    """The heavy book: walk into it and keep driving, slowly, the book centred in front
+    (the bedroom's squared claws, 8 degrees left)."""
+    import builtins
+
+    pose = _pose()
+    book = getattr(builtins, "_crab_props", {}).get("weight")
+    if pose is None or book is None or t < 0.6:
+        return {"twist": (0.0, 0.0, 0.0), "posture": _NEUTRAL}
+    x, y, yaw = pose
+    go = 0.16 * _ramp(t, 0.6, 1.4)
+    vwy = 2.0 * (book[1] - y)
+    return {"twist": _steer(pose, go, max(-0.1, min(0.1, vwy)), 0.14), "posture": _NEUTRAL}
+
+
+# ── OPERATION: COOKIE (jumper.posture in tools/film/stealth_scene.py) ─────────────
+
+_STEALTH: dict = {}
+
+
+def stealth(t: float) -> dict:
+    """Keep to the timetable planned against the vacuum's patrol
+    (`stealth_scene.reference`): feed-forward on the path plus a pull back onto it.
+    Crouched (0.07 m) while sneaking and hiding. Pushing the cookie home, it keeps
+    square behind it (the bedroom's 8-degree claw squaring) within 6 cm of its line."""
+    import builtins
+    import importlib.util
+    from pathlib import Path
+
+    pose = getattr(builtins, "_crab_pose", None)
+    props = getattr(builtins, "_crab_props", {})
+    if pose is None or t < 0.5:
+        return {"twist": (0.0, 0.0, 0.0), "posture": _NEUTRAL}
+    if "m" not in _STEALTH:
+        path = Path(__file__).with_name("film") / "stealth_scene.py"
+        spec = importlib.util.spec_from_file_location("_stealth_scene", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        _STEALTH["m"] = module
+        _STEALTH["low"] = 0.0
+    m = _STEALTH["m"]
+    x, y, yaw = pose
+    rx, ry, rh, phase = m.reference(t)
+    ax, ay, _, _ = m.reference(t + 0.2)
+    vwx = (ax - rx) / 0.2 + 1.8 * (rx - x)
+    vwy = (ay - ry) / 0.2 + 1.8 * (ry - y)
+    heading = rh
+    if phase == "push":
+        heading = rh + 0.14
+        cookie = props.get("cookie")
+        if cookie is not None and 0.0 < cookie[1] - y < 0.45:
+            want = min(max(cookie[0], m.COOKIE_AT[0] - 0.06), m.COOKIE_AT[0] + 0.06)
+            vwx = 1.8 * (want - x)
+    norm = math.hypot(vwx, vwy)
+    if norm > 0.5:
+        vwx, vwy = vwx * 0.5 / norm, vwy * 0.5 / norm
+    # crouch eases in and out over half a second
+    target = 1.0 if phase in m.CROUCH else 0.0
+    _STEALTH["low"] += max(-0.04, min(0.04, target - _STEALTH["low"]))
+    return {"twist": _steer(pose, vwx, vwy, heading, limit=0.35, turn_gain=2.5),
+            "posture": (0.0, 0.0, 0.0, (0.07, _STEALTH["low"]))}

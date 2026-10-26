@@ -34,7 +34,7 @@ DRAWER = Path(__file__).resolve().with_name("draw_poses.py")
 FILM_DIR = Path(__file__).resolve().parent / "film"
 #: The film's own scenes (`tools/film/<name>_scene.py`) and the props whose position
 #: a command script steers by.
-PROPS_FED = {"gold": ("gold",), "bedroom": ("item0", "item1")}
+PROPS_FED = {"gold": ("gold",), "bedroom": ("item0", "item1"), "rocky": ("weight",), "stealth": ("cookie",)}
 OUT = ROOT / "renders"
 
 #: One render peaks at about 1.3 GB (torch + MuJoCo + offscreen GL), measured with
@@ -161,6 +161,37 @@ FILM = [
 
 CREW_TRIES = 6
 
+ROCKY_TRIES = 3
+
+
+def _rocky_clips() -> list[Clip]:
+    """The third film, UNDERCLAW (tools/film/rocky_scene.py): each training take
+    recorded ROCKY_TRIES times as rocky_<take>_<n>; pick_rocky.py keeps the best."""
+    sys.path.insert(0, str(FILM_DIR))
+    import rocky_scene as R
+
+    takes = [("climb", R.CLIMB_START, 26.0, ()), ("fail", R.FAIL_START, 10.0, ()),
+             ("push", R.PUSH_START, 16.0, (("ROCKY_PROPS", "weight"),)),
+             ("shuffle", R.SHUFFLE_START, 11.0, ()), ("squats", R.SQUAT_START, 10.0, ())]
+    return [Clip("rocky", f"rocky_{name}_{n}", "jumper.posture", 0.0, seconds, scene="rocky",
+                 script=f"rocky_{name}", start=start, env=env)
+            for name, start, seconds, env in takes for n in range(ROCKY_TRIES)]
+
+
+
+
+STEALTH_TRIES = 4
+
+
+def _stealth_clips() -> list[Clip]:
+    """The fourth film, OPERATION: COOKIE (tools/film/stealth_scene.py): the crab's run
+    past the patrolling vacuum, recorded STEALTH_TRIES times; check_stealth.py keeps the best."""
+    sys.path.insert(0, str(FILM_DIR))
+    import stealth_scene as T
+
+    return [Clip("stealth", f"stealth_{n}", "jumper.posture", 0.0, round(T.END + 3.0, 1), scene="stealth",
+                 script="stealth", start=T.START) for n in range(STEALTH_TRIES)]
+
 
 def _crew_clips() -> list[Clip]:
     """The second film: one take per crab under the bed (tools/film/bedroom_scene.py)."""
@@ -176,8 +207,10 @@ def _crew_clips() -> list[Clip]:
 
 
 CREW = _crew_clips()
+ROCKY = _rocky_clips()
+STEALTH = _stealth_clips()
 
-GROUPS = {"skills": SKILLS, "scenes": SCENES, "angles": ANGLES, "film": FILM, "crew": CREW}
+GROUPS = {"skills": SKILLS, "scenes": SCENES, "angles": ANGLES, "film": FILM, "crew": CREW, "rocky": ROCKY, "stealth": STEALTH}
 
 
 # ── running ───────────────────────────────────────────────────────────────────

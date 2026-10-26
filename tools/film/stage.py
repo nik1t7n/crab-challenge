@@ -53,10 +53,14 @@ class Take:
     `place=(x, y, yaw_deg)` sets the take down in the film's room: the robot's
     position at the start of the take goes to (x, y) and its heading there to
     `yaw_deg`, and everything free in the take moves rigidly with it. Takes
-    recorded on an empty floor become parts of one continuous space this way.
+    recorded on an empty floor become parts of one continuous space this way. A
+    fourth value lifts it: a take recorded on the floor set down on a flat top that
+    high (the same rigid flat contact, raised).
     """
 
     def __init__(self, name: str, place: tuple[float, float, float] | None = None, group: str = "film"):
+        if "/" in name:  # "group/name": a take from another folder (a gesture, a jump)
+            group, name = name.split("/", 1)
         self.name = name
         npz = RENDERS / group / f"{name}.npz"
         self.rec = np.load(npz)
@@ -78,7 +82,8 @@ class Take:
             w, x, y, z = q0[adr + 3:adr + 7]
             yaw0 = math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))
             turn = math.radians(place[2]) - yaw0
-            self._move = (q0[adr:adr + 2].copy(), np.array(place[:2], float), turn)
+            self._move = (q0[adr:adr + 2].copy(), np.array(place[:2], float), turn,
+                          float(place[3]) if len(place) > 3 else 0.0)
 
     def body(self, name: str) -> int:
         return mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, name)
@@ -95,12 +100,13 @@ class Take:
         for s in self._quat_slices:
             q[s] /= np.linalg.norm(q[s])
         if self._move is not None:
-            origin, target, turn = self._move
+            origin, target, turn, lift = self._move
             c, s_ = math.cos(turn), math.sin(turn)
             rz = np.array([math.cos(turn / 2), 0.0, 0.0, math.sin(turn / 2)])
             for a in self._free:
                 dx, dy = q[a] - origin[0], q[a + 1] - origin[1]
                 q[a], q[a + 1] = target[0] + c * dx - s_ * dy, target[1] + s_ * dx + c * dy
+                q[a + 2] += lift
                 out = np.zeros(4)
                 mujoco.mju_mulQuat(out, rz, q[a + 3:a + 7])
                 q[a + 3:a + 7] = out
@@ -421,7 +427,7 @@ class Shot:
     #: Leave out the walls the camera stands behind (False keeps them: a shot through
     #: a doorway from outside wants the wall around the opening).
     cull: bool = True
-    place: tuple[float, float, float] | None = None  # (x, y, yaw deg): see Take
+    place: tuple[float, ...] | None = None  # (x, y, yaw deg[, lift]): see Take
     group: str = "film"  # where the take lives under renders/
     #: More takes drawn into the same picture (their robots and things; the room is
     #: the main take's): the bedroom crew, six simulations on one floor.

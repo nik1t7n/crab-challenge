@@ -24,10 +24,13 @@ import mujoco
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import importlib
+
 import bedroom_shots as S
 import foley as F
 from stage import Take
 
+FILMS = {"bedroom": "bedroom_shots", "rocky": "rocky_shots"}
 OUT = F.OUT / "bedroom"
 STEP = F.STEP
 SR = F.SR
@@ -47,7 +50,7 @@ def _camera(shot, t_out, take):
 def analyse(shot) -> list[dict]:
     """Per take in the shot: limb speeds and touchdowns, its things' slide speed, and
     its distance and side as the camera sees it."""
-    takes = [Take(shot.take, group=shot.group)] + [Take(n, group=shot.group) for n in shot.crew]
+    takes = [Take(shot.take, shot.place, shot.group)] + [Take(n, shot.place, shot.group) for n in shot.crew]
     n = round(shot.time.duration / STEP) + 1
     out = []
     for j, take in enumerate(takes):
@@ -61,7 +64,8 @@ def analyse(shot) -> list[dict]:
         for g in robot:
             name = (mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_GEOM, g) or "").split("/")[-1]
             limb_of[g] = name[:2] if name[:2] in F.LIMBS else None
-        items = [take.body(f"item{i}/item") for i in range(2) if take.body(f"item{i}/item") >= 0]
+        items = [take.body(p["body"]) for p in FILM.props(take)]
+        heavy = any(p["kind"] == "book" for p in FILM.props(take))
         speed = {limb: np.zeros(n) for limb in F.LIMBS}
         touch = {limb: np.zeros(n, bool) for limb in F.LIMBS}
         slide = np.zeros(n)
@@ -97,7 +101,7 @@ def analyse(shot) -> list[dict]:
             side[i] = float(np.clip(np.dot(rel, right) / (dist or 1.0) * 1.6, -0.9, 0.9))
         frozen = [shot.time((i + 1) * STEP) == shot.time(i * STEP) for i in range(n)]
         out.append({"n": n, "speed": speed, "touch": touch, "slide": slide, "near": near, "side": side,
-                    "frozen": frozen})
+                    "frozen": frozen, "heavy": heavy})
     return out
 
 
@@ -114,9 +118,13 @@ def _place(stereo: np.ndarray, near: np.ndarray, side: np.ndarray) -> np.ndarray
 def shuffle(info, n_audio: int) -> np.ndarray:
     """Cloth pushed over boards: a soft brushed noise, as loud as the thing is fast."""
     v = F._low(F._upsample(info["slide"], n_audio), 10.0)
-    level = 0.22 * np.clip(v / 0.2, 0, 1) ** 0.8
     noise = RNG.standard_normal(n_audio)
-    tone = F._band(noise, 300, 2400) + 0.3 * F._band(noise, 3000, 6000)
+    if info.get("heavy"):  # a 0.7 kg book dragged over boards: low, slow, effortful
+        level = 0.5 * np.clip(v / 0.06, 0, 1) ** 0.7
+        tone = F._band(noise, 90, 700) + 0.25 * F._band(noise, 1200, 2600)
+    else:
+        level = 0.22 * np.clip(v / 0.2, 0, 1) ** 0.8
+        tone = F._band(noise, 300, 2400) + 0.3 * F._band(noise, 3000, 6000)
     grain = 0.7 + 0.3 * np.clip(F._low(RNG.standard_normal(n_audio), 40.0) * 8, 0, 1)
     return np.stack([level * tone * grain] * 2, axis=1) * 0.7
 
@@ -168,15 +176,22 @@ def render(shot) -> np.ndarray:
     return mix
 
 
+FILM = S
+
+
 def main() -> int:
+    global FILM, OUT
     ap = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
+    ap.add_argument("--film", default="bedroom", choices=sorted(FILMS))
     ap.add_argument("--only", nargs="+")
     args = ap.parse_args()
-    for shot in S.SHOTS:
+    FILM = importlib.import_module(FILMS[args.film])
+    OUT = F.OUT / args.film
+    for shot in FILM.SHOTS:
         if args.only and shot.name not in args.only:
             continue
         F.write(OUT / f"{shot.name}.wav", render(shot))
-        print(f"[foley] bedroom/{shot.name}.wav  {shot.time.duration:.1f} s", flush=True)
+        print(f"[foley] {args.film}/{shot.name}.wav  {shot.time.duration:.1f} s", flush=True)
     return 0
 
 
